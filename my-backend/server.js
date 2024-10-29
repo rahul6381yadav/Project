@@ -195,3 +195,15 @@ app.get('/api/profile/image/:email', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+app.get('/api/users/:email', async (req, res) => {
+    const { email } = req.params;
+    try {
+        const users = await User.find({ email:{$ne:email} });
+        res.json({ users });
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
