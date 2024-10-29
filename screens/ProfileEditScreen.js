@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, Alert, ScrollView, Image, ActivityIndica
 import { Picker } from '@react-native-picker/picker';
 import { launchImageLibrary } from 'react-native-image-picker';
 
-function ProfileEditScreen({ route, navigation }) {
+function ProfileEditScreen({route }) {
     const { email } = route.params;
     const [profile, setProfile] = useState({
         fullName: '',
