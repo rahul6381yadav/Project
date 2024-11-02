@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, ScrollView, Image, ActivityIndicator, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { launchImageLibrary } from 'react-native-image-picker';
-
+import { useNavigation } from '@react-navigation/native';
 function ProfileEditScreen({route }) {
     const { email } = route.params;
     const [profile, setProfile] = useState({
@@ -20,6 +20,8 @@ function ProfileEditScreen({route }) {
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigation = useNavigation();
+
 
     const colleges = ["IIT Delhi", "IIT Bombay", "IIT Madras", "IIT Kharagpur", "IIIT Hyderabad", "IIIT Bangalore"];
     const programs = ['BTech', 'MTech', 'PhD'];

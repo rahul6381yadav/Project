@@ -1,25 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator,Button } from 'react-native';
+import { useNavigation,useIsFocused } from '@react-navigation/native';
 const path = require('path');
 
 function ProfileScreen({ route }) {
     const { email } = route.params;
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
+    const navigation = useNavigation();
+    const isFocused = useIsFocused(); // Track if the screen is focused
 
     useEffect(() => {
         // Fetch user profile data
-        fetch(`http://10.0.2.2:5000/api/profile/${email}`)
-            .then(res => res.json())
-            .then(data => {
-                setProfile(data.user);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.log(err);
-                setLoading(false);
-            });
-    }, []);
+        const fetchProfile = () => {
+            setLoading(true);
+            fetch(`http://10.0.2.2:5000/api/profile/${email}`)
+                .then(res => res.json())
+                .then(data => {
+                    setProfile(data.user);
+                    setLoading(false);
+                })
+                .catch(err => {
+                    console.log(err);
+                    setLoading(false);
+                });
+        };
+
+        if (isFocused) {
+            fetchProfile(); // Refetch profile when screen is focused
+        }
+    }, [isFocused]);
 
     if (loading) {
         return <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />;
@@ -64,8 +74,14 @@ function ProfileScreen({ route }) {
                 />
                 {/* {imageError && (
                     <Text style={styles.errorText}>Failed to load image.</Text>
-                )} */}
+                    )} */}
+                
             </View>
+                <Button
+                        title="Edit Profile"
+                        onPress={() => navigation.navigate('ProfileEdit', { email })}
+                        color="#007AFF"
+                />
             <Text style={styles.heading}>Profile Details</Text>
 
             <View style={styles.profileField}>
