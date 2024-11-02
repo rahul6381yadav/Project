@@ -9,6 +9,7 @@ import RegisterScreen from './screens/RegisterScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import { AuthProvider, useAuth } from './AuthContext';
 import ProfileEditScreen from './screens/ProfileEditScreen';
+import ChatListScreen from './screens/ChatListScreen';
 import ChatScreen from './screens/ChatScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -24,13 +25,22 @@ function AuthStack() {
     );
 }
 
+function ChatStack() {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen name="ChatList" component={ChatListScreen} options={{ title: 'Chat List' }} />
+            <Stack.Screen name="Chat" component={ChatScreen} options={({ route }) => ({ title: route.params.friendEmail })} />
+        </Stack.Navigator>
+    );
+}
+
 function AppStack() {
     const { userEmail } = useAuth();
+
     return (
         <Tab.Navigator initialRouteName="Home" screenOptions={{
             tabBarActiveTintColor: '#e91e63',
-        }}
-         >
+        }}>
             <Tab.Screen name="Home" component={HomeScreen} options={{
                 tabBarLabel: 'Home',
                 tabBarIcon: ({ color, size }) => (
@@ -40,20 +50,25 @@ function AppStack() {
             <Tab.Screen name="Profile" component={ProfileScreen}
                 initialParams={{ email: userEmail }}
                 options={{
-                tabBarLabel: 'Profile',
+                    tabBarLabel: 'Profile',
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialCommunityIcons name="account" color={color} size={size} />
+                    ),
+                }} />
+            <Tab.Screen name="ChatTabs" component={ChatStack} options={{
+                tabBarLabel: 'Chat List',
                 tabBarIcon: ({ color, size }) => (
-                    <MaterialCommunityIcons name="account" color={color} size={size} />
+                    <MaterialCommunityIcons name="chat" color={color} size={size} /> // Correct icon name
                 ),
             }} />
-            <Tab.Screen name="Chat" component={ChatScreen} />
             <Tab.Screen name="ProfileEdit" component={ProfileEditScreen}
                 initialParams={{ email: userEmail }}
                 options={{
-                tabBarLabel: 'Updates',
-                tabBarIcon: ({ color, size }) => (
-                    <MaterialCommunityIcons name="bell" color={color} size={size} />
-                ),
-            }} />
+                    tabBarLabel: 'Updates',
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialCommunityIcons name="bell" color={color} size={size} />
+                    ),
+                }} />
         </Tab.Navigator>
     );
 }
@@ -75,5 +90,3 @@ export default function App() {
         </AuthProvider>
     );
 }
-
-

@@ -1,34 +1,59 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Button, FlatList, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { useAuth } from '../AuthContext';
 
 function HomeScreen({ navigation }) {
-    const { logout, userEmail } = useAuth(); // Get user email and logout function
-    const [users, setUsers] = useState([]); // State to hold the list of users
-    const [loading, setLoading] = useState(true); // Loading state
+    const { logout, userEmail } = useAuth();
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Fetch the list of users
         const fetchUsers = async () => {
             try {
-                const response = await fetch(`http://10.0.2.2:5000/api/users/${userEmail}`); // Fetch users excluding the current user
+                const response = await fetch(`http://10.0.2.2:5000/api/users/${userEmail}`);
+
+
                 const data = await response.json();
                 setUsers(data.users);
             } catch (error) {
-                console.error(error);
+                console.error("Error fetching users:", error);
             } finally {
                 setLoading(false);
             }
         };
 
+
         fetchUsers();
     }, [userEmail]);
 
-    const handleAddFriend = (friendEmail) => {
-        // Logic to add a friend can be implemented here
-        console.log(`Request to add friend: ${friendEmail}`);
-        // You can also navigate to a friend request screen or similar
+    const sendFriendRequest = async (friendEmail) => {
+        try {
+            // Use the friend's email directly in the request
+            const response = await fetch(`http://10.0.2.2:5000/api/request/${friendEmail}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ fromId: userEmail }), // Ensure userEmail is the sender's ID
+            });
+            console.log(JSON.stringify({ fromId: userEmail }));
+            if (response.ok) {
+                Alert.alert('Request Sent', `Message request sent to ${friendEmail}`);
+            } else {
+                const errorData = await response.json();
+                Alert.alert('Error', errorData.message || 'Failed to send request.');
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Error', 'Network error. Please try again.');
+        }
     };
+
+
+    const handleAddFriend = (friendEmail) => {
+        sendFriendRequest(friendEmail); // Pass the userId of the friend instead of email
+    };
+
 
     if (loading) {
         return (

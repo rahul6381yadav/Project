@@ -1,6 +1,12 @@
 
 const mongoose = require('mongoose');
 
+
+const requestSchema = new mongoose.Schema({
+    from: { type: String, required: true },
+    status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
+});
+
 const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     mobile: { type: String, required: true },
@@ -16,6 +22,10 @@ const userSchema = new mongoose.Schema({
     achievements: { type: String },
     currentWork: { type: String },
     educationDetails: { type: String },
+    requests: [ requestSchema],
+    friends: [
+        { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+    ],
 });
 
 module.exports = mongoose.model('User', userSchema);
