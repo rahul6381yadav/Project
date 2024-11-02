@@ -17,7 +17,6 @@ import ChatScreen from './screens/ChatScreen';
 import HomeIcon from './assets/images/home.png';
 import ProfileIcon from './assets/images/profile.png';
 import ChatIcon from './assets/images/chat.png';
-import UpdatesIcon from './assets/images/updates.png';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -40,18 +39,21 @@ function ChatStack() {
     );
 }
 
-function AppStack() {
+function AppTabs() {
     const { userEmail } = useAuth();
 
     return (
-        <Tab.Navigator initialRouteName="Home" screenOptions={{
-            tabBarActiveTintColor: '#e91e63',
-        }}>
+        <Tab.Navigator
+            initialRouteName="Home"
+            screenOptions={{
+                tabBarActiveTintColor: '#e91e63',
+            }}
+        >
             <Tab.Screen
                 name="Home"
                 component={HomeScreen}
                 options={{
-                    headerShown:false,
+                    headerShown: false,
                     tabBarLabel: 'Home',
                     tabBarIcon: ({ color, size }) => (
                         <Image source={HomeIcon} style={{ width: size, height: size, tintColor: color }} />
@@ -81,28 +83,27 @@ function AppStack() {
                     ),
                 }}
             />
-            <Tab.Screen
+        </Tab.Navigator>
+    );
+}
+
+function MainStack() {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen name="MainTabs" component={AppTabs} options={{ headerShown: false }} />
+            <Stack.Screen
                 name="ProfileEdit"
                 component={ProfileEditScreen}
-                initialParams={{ email: userEmail }}
-                options={{
-                    headerShown: false,
-                    tabBarLabel: 'Updates',
-                    tabBarIcon: ({ color, size }) => (
-                        <Image source={UpdatesIcon} style={{ width: size, height: size, tintColor: color }} />
-                    ),
-                }}
+                options={{ title: 'Edit Profile' }}
             />
-        </Tab.Navigator>
+        </Stack.Navigator>
     );
 }
 
 function RootNavigator() {
     const { isLoggedIn } = useAuth();
 
-    return (
-        isLoggedIn ? <AppStack /> : <AuthStack />
-    );
+    return isLoggedIn ? <MainStack /> : <AuthStack />;
 }
 
 export default function App() {
