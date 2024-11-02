@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Image } from 'react-native';
 import HomeScreen from './screens/HomeScreen';
 import DetailsScreen from './screens/DetailsScreen';
 import LoginScreen from './screens/LoginScreen';
@@ -11,7 +12,12 @@ import { AuthProvider, useAuth } from './AuthContext';
 import ProfileEditScreen from './screens/ProfileEditScreen';
 import ChatListScreen from './screens/ChatListScreen';
 import ChatScreen from './screens/ChatScreen';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+// Importing images for the tab icons
+import HomeIcon from './assets/images/home.png';
+import ProfileIcon from './assets/images/profile.png';
+import ChatIcon from './assets/images/chat.png';
+import UpdatesIcon from './assets/images/updates.png';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -41,34 +47,52 @@ function AppStack() {
         <Tab.Navigator initialRouteName="Home" screenOptions={{
             tabBarActiveTintColor: '#e91e63',
         }}>
-            <Tab.Screen name="Home" component={HomeScreen} options={{
-                tabBarLabel: 'Home',
-                tabBarIcon: ({ color, size }) => (
-                    <MaterialCommunityIcons name="home" color={color} size={size} />
-                ),
-            }} />
-            <Tab.Screen name="Profile" component={ProfileScreen}
+            <Tab.Screen
+                name="Home"
+                component={HomeScreen}
+                options={{
+                    headerShown:false,
+                    tabBarLabel: 'Home',
+                    tabBarIcon: ({ color, size }) => (
+                        <Image source={HomeIcon} style={{ width: size, height: size, tintColor: color }} />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="Profile"
+                component={ProfileScreen}
                 initialParams={{ email: userEmail }}
                 options={{
+                    headerShown: false,
                     tabBarLabel: 'Profile',
                     tabBarIcon: ({ color, size }) => (
-                        <MaterialCommunityIcons name="account" color={color} size={size} />
+                        <Image source={ProfileIcon} style={{ width: size, height: size, tintColor: color }} />
                     ),
-                }} />
-            <Tab.Screen name="ChatTabs" component={ChatStack} options={{
-                tabBarLabel: 'Chat List',
-                tabBarIcon: ({ color, size }) => (
-                    <MaterialCommunityIcons name="chat" color={color} size={size} /> // Correct icon name
-                ),
-            }} />
-            <Tab.Screen name="ProfileEdit" component={ProfileEditScreen}
+                }}
+            />
+            <Tab.Screen
+                name="ChatTabs"
+                component={ChatStack}
+                options={{
+                    headerShown: false,
+                    tabBarLabel: 'Chat List',
+                    tabBarIcon: ({ color, size }) => (
+                        <Image source={ChatIcon} style={{ width: size, height: size, tintColor: color }} />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="ProfileEdit"
+                component={ProfileEditScreen}
                 initialParams={{ email: userEmail }}
                 options={{
+                    headerShown: false,
                     tabBarLabel: 'Updates',
                     tabBarIcon: ({ color, size }) => (
-                        <MaterialCommunityIcons name="bell" color={color} size={size} />
+                        <Image source={UpdatesIcon} style={{ width: size, height: size, tintColor: color }} />
                     ),
-                }} />
+                }}
+            />
         </Tab.Navigator>
     );
 }
