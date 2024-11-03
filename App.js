@@ -18,6 +18,7 @@ import HomeIcon from './assets/images/home.png';
 import ProfileIcon from './assets/images/profile.png';
 import ChatIcon from './assets/images/chat.png';
 import AlumniCardScreen from './screens/AlumniCardScreen';
+import AddNewsScreen from './screens/AddNewsScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -44,6 +45,7 @@ function HomeStack() {
         <Stack.Navigator>
             <Stack.Screen name="HomePage" component={HomeScreen} />
             <Stack.Screen name="AlumniCard" component={AlumniCardScreen} />
+            <Stack.Screen name="AddNews" component={AddNewsScreen} />
         </Stack.Navigator>
     )
 }

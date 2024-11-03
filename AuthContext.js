@@ -5,24 +5,20 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(null);
-    const [userEmail, setUserEmail] = useState(null); // State for user email
+    const [userEmail, setUserEmail] = useState(null);
+    const [userRole, setUserRole] = useState(null); // Add user role state
 
-    // Load login state and user email from AsyncStorage
+    // Load login state, user email, and user role from AsyncStorage
     useEffect(() => {
         const loadLoginState = async () => {
             try {
                 const storedLoginState = await AsyncStorage.getItem('isLoggedIn');
-                const storedEmail = await AsyncStorage.getItem('userEmail'); // Load user email
+                const storedEmail = await AsyncStorage.getItem('userEmail');
+                const storedRole = await AsyncStorage.getItem('userRole'); // Load user role
 
-                if (storedLoginState !== null) {
-                    setIsLoggedIn(JSON.parse(storedLoginState));
-                } else {
-                    setIsLoggedIn(false); // Default to logged out if no state is saved
-                }
-
-                if (storedEmail !== null) {
-                    setUserEmail(storedEmail); // Set user email if it exists
-                }
+                setIsLoggedIn(storedLoginState ? JSON.parse(storedLoginState) : false);
+                setUserEmail(storedEmail || null);
+                setUserRole(storedRole || null); // Set user role if it exists
             } catch (error) {
                 console.error('Failed to load login state', error);
             }
@@ -31,36 +27,48 @@ export const AuthProvider = ({ children }) => {
         loadLoginState();
     }, []);
 
-    const login = async (email) => {
+    const login = async (email, password) => {
         try {
-            await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+            const response = await fetch('http://10.0.2.2:5000/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
 
-            if (email) { // Ensure email is defined
-                await AsyncStorage.setItem('userEmail', email); // Save user email on login
+            if (response.ok) {
+                const { role } = data;
+                await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+                await AsyncStorage.setItem('userEmail', email);
+                await AsyncStorage.setItem('userRole', role); // Store the role
+
+                setIsLoggedIn(true);
                 setUserEmail(email);
+                setUserRole(role); // Set role in state
             } else {
-                console.error('Email is required for login');
+                console.error(data.message);
             }
-
-            setIsLoggedIn(true);
         } catch (error) {
-            console.error('Failed to save login state', error);
+            console.error('Login error', error);
         }
     };
 
     const logout = async () => {
         try {
             await AsyncStorage.removeItem('isLoggedIn');
-            await AsyncStorage.removeItem('userEmail'); // Remove user email on logout
+            await AsyncStorage.removeItem('userEmail');
+            await AsyncStorage.removeItem('userRole'); // Remove user role on logout
+
             setIsLoggedIn(false);
-            setUserEmail(null); // Clear user email state
+            setUserEmail(null);
+            setUserRole(null);
         } catch (error) {
             console.error('Failed to remove login state', error);
         }
     };
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, userEmail, login, logout }}>
+        <AuthContext.Provider value={{ isLoggedIn, userEmail, userRole, login, logout }}>
             {isLoggedIn !== null && children} {/* Only render children after loading state */}
         </AuthContext.Provider>
     );

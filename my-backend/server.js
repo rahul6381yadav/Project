@@ -178,11 +178,12 @@ app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
         // Find the user by email
+        const role = email === 'rahul6381yadav@gmail.com' ? 'admin' : 'user';
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
-
+        setUserRole(role);
         // Compare the password with hashed password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
@@ -190,7 +191,7 @@ app.post('/api/login', async (req, res) => {
         }
 
         // If credentials are correct
-        res.status(200).json({ message: 'Login successful' });
+        res.status(200).json({ message: 'Login successful',role });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
