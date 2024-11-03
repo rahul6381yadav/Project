@@ -129,6 +129,7 @@ app.post('/api/upload', upload.single('profilePic'), (req, res) => {
 
 
 app.post('/api/register', upload.single('profilePic'), [
+    body('fullName').notEmpty().withMessage('Full name is required'),
     body('email').isEmail(),
     body('mobile').isMobilePhone(),
     body('password').isLength({ min: 6 }),
@@ -138,7 +139,7 @@ app.post('/api/register', upload.single('profilePic'), [
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { email, mobile, password } = req.body;
+    const { fullName, email, mobile, password } = req.body;
 
     // Check if file is uploaded
     if (!req.file) {
@@ -158,6 +159,7 @@ app.post('/api/register', upload.single('profilePic'), [
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new User({
+            fullName,
             email,
             mobile,
             password: hashedPassword,
@@ -170,6 +172,7 @@ app.post('/api/register', upload.single('profilePic'), [
         res.status(500).json({ message: error.message });
     }
 });
+
 
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;

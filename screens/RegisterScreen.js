@@ -1,22 +1,17 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, View, Text, TextInput, Image, TouchableOpacity } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
-import DeviceInfo from 'react-native-device-info';
-import { NetworkInfo } from 'react-native-network-info';
 
 function RegisterScreen({ navigation }) {
+    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [mobile, setMobile] = useState('');
     const [password, setPassword] = useState('');
     const [profilePic, setProfilePic] = useState(null);
-    
+
     const handlePickImage = () => {
-        const options = {
-            mediaType: 'photo',
-            includeBase64: false,
-        };
-        
+        const options = { mediaType: 'photo', includeBase64: false };
+
         launchImageLibrary(options, (response) => {
             if (response.didCancel) {
                 console.log('User cancelled image picker');
@@ -28,9 +23,10 @@ function RegisterScreen({ navigation }) {
             }
         });
     };
-    
+
     const handleRegister = async () => {
         const formData = new FormData();
+        formData.append('fullName', fullName);
         formData.append('email', email);
         formData.append('mobile', mobile);
         formData.append('password', password);
@@ -43,7 +39,7 @@ function RegisterScreen({ navigation }) {
                 type: `image/${fileType}`,
             });
         }
-        
+
         try {
             const response = await fetch('http://10.0.2.2:5000/api/register', {
                 method: 'POST',
@@ -52,7 +48,7 @@ function RegisterScreen({ navigation }) {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log("Response Status:", response.status); // Log response status
+            console.log("Response Status:", response.status);
             const data = await response.json();
             alert(data.message);
             if (response.ok) {
@@ -68,10 +64,16 @@ function RegisterScreen({ navigation }) {
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <Text>Register Screen</Text>
             <TextInput
+                placeholder="Full Name"
+                value={fullName}
+                onChangeText={setFullName}
+                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, width: '80%', padding: 10 }}
+            />
+            <TextInput
                 placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
-                style={{height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, width: '80%', padding: 10 }}
+                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, width: '80%', padding: 10 }}
             />
             <TextInput
                 placeholder="Mobile Number"
@@ -88,7 +90,7 @@ function RegisterScreen({ navigation }) {
             />
             <TouchableOpacity onPress={handlePickImage}>
                 {profilePic ? (
-                    <Image source={profilePic} style={{ width: 100, height: 100 }} />
+                    <Image source={profilePic} style={{ width: 100, height: 100, borderRadius: 50 }} />
                 ) : (
                     <Text>Select Profile Picture</Text>
                 )}

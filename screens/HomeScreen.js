@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Button, FlatList, StyleSheet, ActivityIndicator, Alert, Image } from 'react-native';
 import { useAuth } from '../AuthContext';
 
 function HomeScreen({ navigation }) {
@@ -11,8 +11,6 @@ function HomeScreen({ navigation }) {
         const fetchUsers = async () => {
             try {
                 const response = await fetch(`http://10.0.2.2:5000/api/users/${userEmail}`);
-
-
                 const data = await response.json();
                 setUsers(data.users);
             } catch (error) {
@@ -22,21 +20,18 @@ function HomeScreen({ navigation }) {
             }
         };
 
-
         fetchUsers();
     }, [userEmail]);
 
     const sendFriendRequest = async (friendEmail) => {
         try {
-            // Use the friend's email directly in the request
             const response = await fetch(`http://10.0.2.2:5000/api/request/${friendEmail}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ fromId: userEmail }), // Ensure userEmail is the sender's ID
+                body: JSON.stringify({ fromId: userEmail }),
             });
-            console.log(JSON.stringify({ fromId: userEmail }));
             if (response.ok) {
                 Alert.alert('Request Sent', `Message request sent to ${friendEmail}`);
             } else {
@@ -49,11 +44,9 @@ function HomeScreen({ navigation }) {
         }
     };
 
-
     const handleAddFriend = (friendEmail) => {
-        sendFriendRequest(friendEmail); // Pass the userId of the friend instead of email
+        sendFriendRequest(friendEmail);
     };
-
 
     if (loading) {
         return (
@@ -62,6 +55,21 @@ function HomeScreen({ navigation }) {
                 <Text style={styles.loaderText}>Loading users...</Text>
             </View>
         );
+    }
+
+
+    function convertToPath(inputString) {
+        if (typeof inputString !== 'string') {
+            return null;
+        }
+        // Normalize path and replace backslashes with forward slashes
+        const normalizedPath = inputString.replace(/\\/g, '/');
+
+        // Find the portion after "uploads/"
+        const match = normalizedPath.match(/uploads\/.*/);
+
+        // If the match exists, prepend the base URL with 'my-backend/'
+        return match ? `http://10.0.2.2:8081/my-backend/${match[0]}` : null;
     }
 
     return (
@@ -75,7 +83,11 @@ function HomeScreen({ navigation }) {
                 keyExtractor={(item) => item.email}
                 renderItem={({ item }) => (
                     <View style={styles.userContainer}>
-                        <Text style={styles.userName}>{item.email || "Unknown User"}</Text>
+                        <Image
+                            source={{ uri: item.profilePic ? convertToPath(item.profilePic) : '../fake.png' }}
+                            style={styles.profileImage}
+                        />
+                        <Text style={styles.userName}>{item.fullName || "Unknown User"}</Text>
                         <Button
                             title="Message Request"
                             onPress={() => handleAddFriend(item.email)}
@@ -122,7 +134,6 @@ const styles = StyleSheet.create({
     },
     userContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 15,
         paddingHorizontal: 10,
@@ -132,7 +143,15 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginVertical: 5,
     },
+    profileImage: {
+        width: 50,
+        height: 50,
+        borderRadius: 25, // Make the image circular
+        marginRight: 15,
+        backgroundColor: '#EFEFEF', // Fallback background color
+    },
     userName: {
+        flex: 1,
         fontSize: 18,
         color: '#555',
     },
