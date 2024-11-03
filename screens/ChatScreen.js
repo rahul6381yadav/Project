@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, TextInput, Button, FlatList, Text, StyleSheet } from 'react-native';
 import io from 'socket.io-client';
-
+import DocumentPicker from 'react-native-document-picker';
 const socket = io("http://10.0.2.2:5000", {
     transports: ["websocket"],
     forceNew: true,

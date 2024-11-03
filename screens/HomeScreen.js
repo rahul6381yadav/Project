@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, FlatList, StyleSheet, ActivityIndicator, Alert, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useAuth } from '../AuthContext';
-
+import DocumentPicker from 'react-native-document-picker';
 function HomeScreen({ navigation }) {
     const { logout, userEmail } = useAuth();
     const [users, setUsers] = useState([]);
@@ -59,7 +59,7 @@ function HomeScreen({ navigation }) {
                 <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('JobPortal')}>
                     <Text style={styles.sectionText}>Job Portal</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('NearbyAlumni')}>
+                <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('AlumniCard', { email: userEmail })}>
                     <Text style={styles.sectionText}>Nearby Alumni</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('PostDiscussion')}>

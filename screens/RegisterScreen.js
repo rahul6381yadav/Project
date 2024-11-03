@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, View, Text, TextInput, Image, TouchableOpacity } from 'react-native';
+import { Button, View, Text, TextInput, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 
 function RegisterScreen({ navigation }) {
@@ -61,44 +61,122 @@ function RegisterScreen({ navigation }) {
     };
 
     return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text>Register Screen</Text>
+        <View style={styles.container}>
+            {/* Logo */}
+            <Image
+                source={require('../Alumni-connect.jpg')}
+                style={styles.logo}
+            />
+
+            <Text style={styles.title}>Register</Text>
+
+            {/* Input Fields */}
             <TextInput
                 placeholder="Full Name"
                 value={fullName}
                 onChangeText={setFullName}
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, width: '80%', padding: 10 }}
+                style={styles.input}
             />
             <TextInput
                 placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, width: '80%', padding: 10 }}
+                style={styles.input}
             />
             <TextInput
                 placeholder="Mobile Number"
                 value={mobile}
                 onChangeText={setMobile}
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, width: '80%', padding: 10 }}
+                style={styles.input}
             />
             <TextInput
                 placeholder="Password"
                 secureTextEntry
                 value={password}
                 onChangeText={setPassword}
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, width: '80%', padding: 10 }}
+                style={styles.input}
             />
-            <TouchableOpacity onPress={handlePickImage}>
+
+            {/* Profile Picture */}
+            <TouchableOpacity onPress={handlePickImage} style={styles.profilePicContainer}>
                 {profilePic ? (
-                    <Image source={profilePic} style={{ width: 100, height: 100, borderRadius: 50 }} />
+                    <Image source={profilePic} style={styles.profilePic} />
                 ) : (
-                    <Text>Select Profile Picture</Text>
+                    <Text style={styles.selectPhotoText}>Select Profile Picture</Text>
                 )}
             </TouchableOpacity>
-            <Button title="Register" onPress={handleRegister} />
-            <Button title="Go to Login" onPress={() => navigation.navigate('Login')} />
+
+            {/* Buttons */}
+            <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+                <Text style={styles.registerButtonText}>Register</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <Text style={styles.loginLink}>Already have an account? Login</Text>
+            </TouchableOpacity>
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        padding: 20,
+        backgroundColor: '#F5F7FA',
+    },
+    logo: {
+        width: 120,
+        height: 120,
+        marginBottom: 20,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 20,
+    },
+    input: {
+        height: 50,
+        width: '100%',
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingHorizontal: 15,
+        marginVertical: 10,
+        backgroundColor: '#FFFFFF',
+    },
+    profilePicContainer: {
+        marginTop: 15,
+        marginBottom: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    profilePic: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+    },
+    selectPhotoText: {
+        color: '#007AFF',
+        fontSize: 16,
+    },
+    registerButton: {
+        backgroundColor: '#007AFF',
+        paddingVertical: 15,
+        paddingHorizontal: 80,
+        borderRadius: 10,
+        marginVertical: 10,
+    },
+    registerButtonText: {
+        color: '#FFFFFF',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    loginLink: {
+        color: '#007AFF',
+        marginTop: 20,
+        fontSize: 16,
+    },
+});
 
 export default RegisterScreen;
