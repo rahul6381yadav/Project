@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, ActivityIndicator, Alert, Image } from 'react-native';
+import { View, Text, Button, FlatList, StyleSheet, ActivityIndicator, Alert, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useAuth } from '../AuthContext';
-
+import DocumentPicker from 'react-native-document-picker';
 function HomeScreen({ navigation }) {
     const { logout, userEmail } = useAuth();
     const [users, setUsers] = useState([]);
@@ -23,31 +23,6 @@ function HomeScreen({ navigation }) {
         fetchUsers();
     }, [userEmail]);
 
-    const sendFriendRequest = async (friendEmail) => {
-        try {
-            const response = await fetch(`http://10.0.2.2:5000/api/request/${friendEmail}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ fromId: userEmail }),
-            });
-            if (response.ok) {
-                Alert.alert('Request Sent', `Message request sent to ${friendEmail}`);
-            } else {
-                const errorData = await response.json();
-                Alert.alert('Error', errorData.message || 'Failed to send request.');
-            }
-        } catch (error) {
-            console.error(error);
-            Alert.alert('Error', 'Network error. Please try again.');
-        }
-    };
-
-    const handleAddFriend = (friendEmail) => {
-        sendFriendRequest(friendEmail);
-    };
-
     if (loading) {
         return (
             <View style={styles.loaderContainer}>
@@ -56,8 +31,6 @@ function HomeScreen({ navigation }) {
             </View>
         );
     }
-
-
     function convertToPath(inputString) {
         if (typeof inputString !== 'string') {
             return null;
@@ -71,26 +44,49 @@ function HomeScreen({ navigation }) {
         // If the match exists, prepend the base URL with 'my-backend/'
         return match ? `http://10.0.2.2:8081/my-backend/${match[0]}` : null;
     }
-
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.headerText}>Welcome to the Home Screen</Text>
                 <Button title="Logout" onPress={logout} color="#FF3D00" />
             </View>
+
+            {/* Section Buttons */}
+            <View style={styles.sectionsContainer}>
+                <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('News')}>
+                    <Text style={styles.sectionText}>News and Updates</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('JobPortal')}>
+                    <Text style={styles.sectionText}>Job Portal</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('AlumniCard', { email: userEmail })}>
+                    <Text style={styles.sectionText}>Nearby Alumni</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('PostDiscussion')}>
+                    <Text style={styles.sectionText}>Post Discussion</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('AlumniCard')}>
+                    <Text style={styles.sectionText}>Alumni Card</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('JoinGroup')}>
+                    <Text style={styles.sectionText}>Join a Group</Text>
+                </TouchableOpacity>
+            </View>
+
+            {/* List of Alumni */}
             <FlatList
                 data={users}
                 keyExtractor={(item) => item.email}
                 renderItem={({ item }) => (
                     <View style={styles.userContainer}>
                         <Image
-                            source={{ uri: item.profilePic ? convertToPath(item.profilePic) : '../fake.png' }}
+                            source={{ uri: item.profilePic ? convertToPath(item.profilePic) :'https://example.com/default-avatar.png' }}
                             style={styles.profileImage}
                         />
                         <Text style={styles.userName}>{item.fullName || "Unknown User"}</Text>
                         <Button
                             title="Message Request"
-                            onPress={() => handleAddFriend(item.email)}
+                            onPress={() => sendFriendRequest(item.email)}
                             color="#007AFF"
                         />
                     </View>
@@ -98,7 +94,7 @@ function HomeScreen({ navigation }) {
                 contentContainerStyle={styles.userList}
                 showsVerticalScrollIndicator={false}
             />
-        </View>
+        </ScrollView>
     );
 }
 
@@ -121,6 +117,25 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         color: '#333',
+    },
+    sectionsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        marginBottom: 20,
+    },
+    sectionButton: {
+        width: '48%',
+        backgroundColor: '#E0F7FA',
+        padding: 15,
+        borderRadius: 8,
+        marginBottom: 10,
+        alignItems: 'center',
+    },
+    sectionText: {
+        fontSize: 16,
+        color: '#007AFF',
+        fontWeight: 'bold',
     },
     loaderContainer: {
         flex: 1,
@@ -146,9 +161,9 @@ const styles = StyleSheet.create({
     profileImage: {
         width: 50,
         height: 50,
-        borderRadius: 25, // Make the image circular
+        borderRadius: 25,
         marginRight: 15,
-        backgroundColor: '#EFEFEF', // Fallback background color
+        backgroundColor: '#EFEFEF',
     },
     userName: {
         flex: 1,

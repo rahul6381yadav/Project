@@ -17,6 +17,7 @@ import ChatScreen from './screens/ChatScreen';
 import HomeIcon from './assets/images/home.png';
 import ProfileIcon from './assets/images/profile.png';
 import ChatIcon from './assets/images/chat.png';
+import AlumniCardScreen from './screens/AlumniCardScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -38,7 +39,14 @@ function ChatStack() {
         </Stack.Navigator>
     );
 }
-
+function HomeStack() {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen name="HomePage" component={HomeScreen} />
+            <Stack.Screen name="AlumniCard" component={AlumniCardScreen} />
+        </Stack.Navigator>
+    )
+}
 function AppTabs() {
     const { userEmail } = useAuth();
 
@@ -51,7 +59,7 @@ function AppTabs() {
         >
             <Tab.Screen
                 name="Home"
-                component={HomeScreen}
+                component={HomeStack}
                 options={{
                     headerShown: false,
                     tabBarLabel: 'Home',
