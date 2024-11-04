@@ -178,8 +178,6 @@ app.post('/api/register', upload.single('profilePic'), [
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        // Find the user by email
-        // const role = email === 'rahul6381yadav@gmail.com' ? 'admin' : 'user';
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: 'Invalid email or password' });

@@ -10,6 +10,18 @@ function HomeScreen({ navigation }) {
     const [friends, setFriends] = useState({ accepted: [], pending: [] });
 
 
+    const fetchFriends = () => {
+        setLoading(true); // Set loading to true before fetching
+        axios.get(`http://10.0.2.2:5000/api/friends/status/${userEmail}`)
+            .then(response => {
+                const { accepted = [], pending = [] } = response.data;
+                setFriends({ accepted, pending }); // Set loading to false after data is fetched
+            })
+            .catch(error => {
+                console.error("Error fetching friends:", error);
+                setLoading(false); // Set loading to false in case of an error
+            });
+    }
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -23,22 +35,9 @@ function HomeScreen({ navigation }) {
             }
         };
         fetchUsers();
-        const fetchFriends = () => {
-            setLoading(true); // Set loading to true before fetching
-            axios.get(`http://10.0.2.2:5000/api/friends/status/${userEmail}`)
-                .then(response => {
-                    const { accepted = [], pending = [] } = response.data;
-                    setFriends({ accepted, pending }); // Set loading to false after data is fetched
-                })
-                .catch(error => {
-                    console.error("Error fetching friends:", error);
-                    setLoading(false); // Set loading to false in case of an error
-                });
-        }
-        fetchUsers();
         fetchFriends();
         setLoading(false);
-    }, [userEmail]);
+    }, [userEmail,friends]);
 
     if (loading) {
         return (
