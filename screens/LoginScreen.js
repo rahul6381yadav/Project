@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, View, Text, TextInput, Alert, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../AuthContext'; // Import useAuth from AuthContext
 
 function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
@@ -20,7 +20,6 @@ function LoginScreen({ navigation }) {
             if (response.ok) {
                 const data = await response.json();
                 Alert.alert('Success', data.message);
-                console.log(email);
                 login(email); // Set user as logged in
                 navigation.navigate('Home'); // Navigate to Home screen
             } else {
@@ -41,20 +40,15 @@ function LoginScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            {/* Logo */}
-            <Image
-                source={require('../Alumni-connect.jpg')}
-                style={styles.logo}
-            />
-
+            <Image source={require('../Alumni-connect.jpg')} style={styles.logo} /> {/* Update with your logo path */}
             <Text style={styles.title}>Login</Text>
-
-            {/* Input Fields */}
             <TextInput
                 placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
                 style={styles.input}
+                keyboardType="email-address"
+                autoCapitalize="none"
             />
             <TextInput
                 placeholder="Password"
@@ -63,13 +57,9 @@ function LoginScreen({ navigation }) {
                 onChangeText={setPassword}
                 style={styles.input}
             />
-
-            {/* Login Button */}
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                 <Text style={styles.loginButtonText}>Login</Text>
             </TouchableOpacity>
-
-            {/* Link to Register */}
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
                 <Text style={styles.registerLink}>Don't have an account? Register</Text>
             </TouchableOpacity>

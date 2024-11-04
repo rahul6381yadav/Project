@@ -10,6 +10,8 @@ const { body, validationResult } = require('express-validator');
 const fs = require('fs');
 const User = require('./models/User');
 const Message = require('./models/Message');
+const News = require('./models/News');
+
 const OfflineMessage = require('./models/OfflineMessage');
 require('dotenv').config();
 
@@ -173,17 +175,15 @@ app.post('/api/register', upload.single('profilePic'), [
     }
 });
 
-
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
         // Find the user by email
-        const role = email === 'rahul6381yadav@gmail.com' ? 'admin' : 'user';
+        // const role = email === 'rahul6381yadav@gmail.com' ? 'admin' : 'user';
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
-        setUserRole(role);
         // Compare the password with hashed password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
@@ -425,5 +425,36 @@ app.post('/api/friends/reject', async (req, res) => {
         res.status(200).json({ message: "Friend request rejected" });
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+});
+
+
+
+app.post('/api/news', async (req, res) => {
+    const { title, content, author } = req.body;
+
+    // Check if the user is authorized to add news
+    if (author !== 'rahul6381yadav@gmail.com') {
+        return res.status(403).json({ message: 'You do not have permission to add news updates.' });
+    }
+
+    try {
+        const news = new News({ title, content, author });
+        await news.save();
+        res.status(201).json({ message: 'News added successfully', news });
+    } catch (error) {
+        console.error('Error adding news:', error);
+        res.status(500).json({ message: 'An error occurred while adding news.' });
+    }
+});
+
+// GET /api/news - Get all news updates
+app.get('/api/news', async (req, res) => {
+    try {
+        const newsList = await News.find().sort({ createdAt: -1 }); // Sort by latest
+        res.status(200).json(newsList);
+    } catch (error) {
+        console.error('Error fetching news:', error);
+        res.status(500).json({ message: 'An error occurred while fetching news.' });
     }
 });

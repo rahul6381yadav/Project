@@ -48,7 +48,6 @@ function RegisterScreen({ navigation }) {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log("Response Status:", response.status);
             const data = await response.json();
             alert(data.message);
             if (response.ok) {
@@ -62,15 +61,8 @@ function RegisterScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            {/* Logo */}
-            <Image
-                source={require('../Alumni-connect.jpg')}
-                style={styles.logo}
-            />
-
+            <Image source={require('../Alumni-connect.jpg')} style={styles.logo} /> {/* Update with your logo path */}
             <Text style={styles.title}>Register</Text>
-
-            {/* Input Fields */}
             <TextInput
                 placeholder="Full Name"
                 value={fullName}
@@ -82,12 +74,15 @@ function RegisterScreen({ navigation }) {
                 value={email}
                 onChangeText={setEmail}
                 style={styles.input}
+                keyboardType="email-address"
+                autoCapitalize="none"
             />
             <TextInput
                 placeholder="Mobile Number"
                 value={mobile}
                 onChangeText={setMobile}
                 style={styles.input}
+                keyboardType="phone-pad"
             />
             <TextInput
                 placeholder="Password"
@@ -96,22 +91,18 @@ function RegisterScreen({ navigation }) {
                 onChangeText={setPassword}
                 style={styles.input}
             />
-
-            {/* Profile Picture */}
-            <TouchableOpacity onPress={handlePickImage} style={styles.profilePicContainer}>
+            <TouchableOpacity onPress={handlePickImage} style={styles.imagePicker}>
                 {profilePic ? (
-                    <Image source={profilePic} style={styles.profilePic} />
+                    <Image source={profilePic} style={styles.profileImage} />
                 ) : (
-                    <Text style={styles.selectPhotoText}>Select Profile Picture</Text>
+                    <Text style={styles.imagePickerText}>Select Profile Picture</Text>
                 )}
             </TouchableOpacity>
-
-            {/* Buttons */}
             <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
                 <Text style={styles.registerButtonText}>Register</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.loginLink}>Already have an account? Login</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.loginButton}>
+                <Text style={styles.loginButtonText}>Go to Login</Text>
             </TouchableOpacity>
         </View>
     );
@@ -120,61 +111,68 @@ function RegisterScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#f9f9f9',
         alignItems: 'center',
-        padding: 20,
-        backgroundColor: '#F5F7FA',
+        justifyContent: 'center',
+        paddingHorizontal: 20,
     },
     logo: {
-        width: 120,
-        height: 120,
+        width: 100,
+        height: 100,
         marginBottom: 20,
     },
     title: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: 'bold',
-        color: '#333',
         marginBottom: 20,
+        color: '#333',
     },
     input: {
         height: 50,
         width: '100%',
-        borderColor: '#ccc',
+        borderColor: '#ddd',
         borderWidth: 1,
-        borderRadius: 10,
+        borderRadius: 8,
         paddingHorizontal: 15,
-        marginVertical: 10,
-        backgroundColor: '#FFFFFF',
+        marginBottom: 15,
+        backgroundColor: '#fff',
     },
-    profilePicContainer: {
-        marginTop: 15,
-        marginBottom: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    profilePic: {
+    imagePicker: {
         width: 100,
         height: 100,
         borderRadius: 50,
+        backgroundColor: '#e0e0e0',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
     },
-    selectPhotoText: {
-        color: '#007AFF',
-        fontSize: 16,
+    profileImage: {
+        width: 100,
+        height: 100,
+    },
+    imagePickerText: {
+        color: '#555',
     },
     registerButton: {
-        backgroundColor: '#007AFF',
+        backgroundColor: '#007bff',
+        borderRadius: 8,
         paddingVertical: 15,
-        paddingHorizontal: 80,
-        borderRadius: 10,
-        marginVertical: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        marginBottom: 15,
     },
     registerButtonText: {
-        color: '#FFFFFF',
-        fontSize: 18,
+        color: '#fff',
+        fontSize: 16,
         fontWeight: 'bold',
     },
-    loginLink: {
-        color: '#007AFF',
-        marginTop: 20,
+    loginButton: {
+        paddingVertical: 10,
+        alignItems: 'center',
+    },
+    loginButtonText: {
+        color: '#007bff',
         fontSize: 16,
     },
 });
