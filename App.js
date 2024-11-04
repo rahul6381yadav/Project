@@ -17,8 +17,12 @@ import NewsListScreen from './screens/NewsListScreen';
 import HomeIcon from './assets/images/home.png';
 import ProfileIcon from './assets/images/profile.png';
 import ChatIcon from './assets/images/chat.png';
+import newsIcon from './assets/images/news.png';
+import postIcon from './assets/images/post.png';
 import AlumniCardScreen from './screens/AlumniCardScreen';
 import AddNewsScreen from './screens/AddNewsScreen';
+import PostDiscussionScreen from './screens/PostDiscussionScreen';
+import DiscussionDetailScreen from './screens/DiscussionDetailScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -46,6 +50,7 @@ function HomeStack() {
             <Stack.Screen name="HomePage" component={HomeScreen} />
             <Stack.Screen name="AlumniCard" component={AlumniCardScreen} />
             <Stack.Screen name="AddNews" component={AddNewsScreen} />
+            <Stack.Screen name="PostDiscussion" component={PostDiscussionScreen}/>
         </Stack.Navigator>
     );
 }
@@ -91,7 +96,19 @@ function AppTabs() {
                     headerShown: false,
                     tabBarLabel: 'News',
                     tabBarIcon: ({ color, size }) => (
-                        <Image source={ProfileIcon} style={{ width: size, height: size, tintColor: color }} />
+                        <Image source={newsIcon} style={{ width: size, height: size, tintColor: color }} />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="Post"
+                component={DiscussionDetailScreen}
+                initialParams={{ email: userEmail }}
+                options={{
+                    headerShown: false,
+                    tabBarLabel: 'Post',
+                    tabBarIcon: ({ color, size }) => (
+                        <Image source={postIcon} style={{ width: size, height: size, tintColor: color }} />
                     ),
                 }}
             />

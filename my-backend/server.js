@@ -11,6 +11,7 @@ const fs = require('fs');
 const User = require('./models/User');
 const Message = require('./models/Message');
 const News = require('./models/News');
+const Discussion = require('./models/Discussion');
 
 const OfflineMessage = require('./models/OfflineMessage');
 require('dotenv').config();
@@ -454,5 +455,116 @@ app.get('/api/news', async (req, res) => {
     } catch (error) {
         console.error('Error fetching news:', error);
         res.status(500).json({ message: 'An error occurred while fetching news.' });
+    }
+});
+
+
+
+
+
+// Get all discussions
+// POST /api/discussions
+app.post('/api/discussions', async (req, res) => {
+    const { title, content, author } = req.body;
+    try {
+        const discussion = new Discussion({ title, content, author });
+        await discussion.save();
+        res.status(201).json({ message: 'Discussion created successfully', discussion });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to create discussion' });
+    }
+});
+
+
+// Add a comment to a discussion
+app.post('/api/discussions/:id/comments', async (req, res) => {
+    const { id } = req.params;
+    const { author, content } = req.body;
+    try {
+        const discussion = await Discussion.findById(id);
+        if (!discussion) {
+            return res.status(404).json({ message: 'Discussion not found' });
+        }
+
+        const comment = { author, content };
+        discussion.comments.push(comment);
+        await discussion.save();
+
+        res.status(200).json({ message: 'Comment added successfully', discussion });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to add comment' });
+    }
+});
+
+
+
+
+// Like a discussion
+// app.post('/api/discussions/:id/like', async (req, res) => {
+//     const { id } = req.params;
+//     try {
+//         const discussion = await Discussion.findById(id);
+//         if (!discussion) {
+//             return res.status(404).json({ message: 'Discussion not found' });
+//         }
+
+//         discussion.likes += 1;
+//         await discussion.save();
+
+//         res.status(200).json({ message: 'Discussion liked', likes: discussion.likes });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: 'Failed to like discussion' });
+//     }
+// });
+
+// Toggle like for a discussion by ID
+app.post('/api/discussions/:id/like', async (req, res) => {
+    const { id } = req.params;
+    const { userEmail } = req.body; // Get the user's email from the request body
+
+    try {
+        const discussion = await Discussion.findById(id);
+        if (!discussion) {
+            return res.status(404).json({ message: 'Discussion not found' });
+        }
+
+        const userIndex = discussion.likedBy.indexOf(userEmail);
+
+        if (userIndex === -1) {
+            // User has not liked the discussion, so add their like
+            discussion.likes += 1;
+            discussion.likedBy.push(userEmail);
+        } else {
+            // User has already liked the discussion, so remove their like
+            discussion.likes -= 1;
+            discussion.likedBy.splice(userIndex, 1); // Remove user from likedBy array
+        }
+
+        await discussion.save();
+
+        res.status(200).json({ message: 'Like toggled', likes: discussion.likes });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to toggle like' });
+    }
+});
+
+
+
+// Get all discussions with comments sorted by time (most recent first)
+app.get('/api/discussions', async (req, res) => {
+    try {
+        const discussions = await Discussion.find().sort({ createdAt: -1 }).lean();
+        // Sort comments by createdAt in descending order
+        discussions.forEach(discussion => {
+            discussion.comments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        });
+        res.status(200).json(discussions);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to fetch discussions' });
     }
 });
