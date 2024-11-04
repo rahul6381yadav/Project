@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, FlatList, StyleSheet, ActivityIndicator, Alert, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { useAuth } from '../AuthContext';
+import axios from 'axios';
 
 function HomeScreen({ navigation }) {
     const { logout, userEmail } = useAuth();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [friends, setFriends] = useState({ accepted: [], pending: [] });
+
+
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -16,11 +20,24 @@ function HomeScreen({ navigation }) {
             } catch (error) {
                 console.error("Error fetching users:", error);
             } finally {
-                setLoading(false);
             }
         };
-
         fetchUsers();
+        const fetchFriends = () => {
+            setLoading(true); // Set loading to true before fetching
+            axios.get(`http://10.0.2.2:5000/api/friends/status/${userEmail}`)
+                .then(response => {
+                    const { accepted = [], pending = [] } = response.data;
+                    setFriends({ accepted, pending }); // Set loading to false after data is fetched
+                })
+                .catch(error => {
+                    console.error("Error fetching friends:", error);
+                    setLoading(false); // Set loading to false in case of an error
+                });
+        }
+        fetchUsers();
+        fetchFriends();
+        setLoading(false);
     }, [userEmail]);
 
     if (loading) {
@@ -31,19 +48,51 @@ function HomeScreen({ navigation }) {
             </View>
         );
     }
+
     function convertToPath(inputString) {
         if (typeof inputString !== 'string') {
             return null;
         }
-        // Normalize path and replace backslashes with forward slashes
         const normalizedPath = inputString.replace(/\\/g, '/');
-
-        // Find the portion after "uploads/"
         const match = normalizedPath.match(/uploads\/.*/);
-
-        // If the match exists, prepend the base URL with 'my-backend/'
         return match ? `http://10.0.2.2:8081/my-backend/${match[0]}` : null;
     }
+
+    const sendFriendRequest = async (email) => {
+        // Logic to send a friend request (API call)
+        try {
+            const response = await fetch('http://10.0.2.2:5000/api/friend-requests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sender: userEmail, receiver: email }),
+            });
+
+            if (response.ok) {
+                Alert.alert('Friend Request Sent', `Friend request sent to ${email}.`);
+            } else {
+                Alert.alert('Error', 'Failed to send friend request.');
+            }
+        } catch (error) {
+            console.error('Error sending friend request:', error);
+        }
+    };
+
+    const acceptRequest = (friendEmail) => {
+        axios.post(`http://10.0.2.2:5000/api/friends/accept`, { friendEmail, userEmail })
+            .then(() => {
+                Alert.alert("Success", "Friend request accepted!");
+                fetchFriends(); // Refresh the friends list
+            })
+            .catch(error => console.error("Error accepting friend request:", error));
+    };
+    const rejectRequest = (friendEmail) => {
+        axios.post(`http://10.0.2.2:5000/api/friends/reject`, { friendEmail, userEmail })
+            .then(() => {
+                Alert.alert("Success", "Friend request rejected!");
+                fetchFriends(); // Refresh the friends list
+            })
+            .catch(error => console.error("Error rejecting friend request:", error));
+    };
     return (
         <ScrollView style={styles.container}>
             <View style={styles.header}>
@@ -77,23 +126,52 @@ function HomeScreen({ navigation }) {
             <FlatList
                 data={users}
                 keyExtractor={(item) => item.email}
-                renderItem={({ item }) => (
-                    <View style={styles.userContainer}>
-                        <Image
-                            source={{ uri: item.profilePic ? convertToPath(item.profilePic) :'https://example.com/default-avatar.png' }}
-                            style={styles.profileImage}
-                        />
-                        <Text style={styles.userName}>{item.fullName || "Unknown User"}</Text>
-                        <Button
-                            title="Message Request"
-                            onPress={() => sendFriendRequest(item.email)}
-                            color="#007AFF"
-                        />
-                    </View>
-                )}
+                renderItem={({ item }) => {
+                    // Extract the friend's email from the item
+                    const friendEmail = item.email;
+
+                    // Check if the email is in the accepted friends list
+                    const isFriend = friends.accepted.some(friend => friend.email === friendEmail);
+
+                    // Check if the email is in the pending friends list
+                    const hasRequested = friends.pending.some(friend => friend.email === friendEmail);
+
+                    return (
+                        <View style={styles.userContainer}>
+                            <Image
+                                source={{ uri: item.profilePic ? convertToPath(item.profilePic) : 'https://example.com/default-avatar.png' }}
+                                style={styles.profileImage}
+                            />
+                            <Text style={styles.userName}>{item.fullName || "Unknown User"}</Text>
+                            {isFriend ? (
+                                <Text style={styles.friendText}>Already Friends</Text>
+                            ) : hasRequested ? (
+                                <View>
+                                    <Button
+                                        title="Accept Request"
+                                        onPress={() => acceptRequest(friendEmail)}
+                                        color="#007AFF"
+                                    />
+                                    <Button
+                                        title="Reject Request"
+                                        onPress={() => rejectRequest(friendEmail)}
+                                        color="#FF3D00"
+                                    />
+                                </View>
+                            ) : (
+                                <Button
+                                    title="Send Friend Request"
+                                    onPress={() => sendFriendRequest(friendEmail)}
+                                    color="#007AFF"
+                                />
+                            )}
+                        </View>
+                    );
+                }}
                 contentContainerStyle={styles.userList}
                 showsVerticalScrollIndicator={false}
             />
+
         </ScrollView>
     );
 }
@@ -169,6 +247,10 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 18,
         color: '#555',
+    },
+    friendText: {
+        color: 'green',
+        fontWeight: 'bold',
     },
     userList: {
         paddingBottom: 20,
