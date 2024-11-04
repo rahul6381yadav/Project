@@ -8,11 +8,11 @@ import DetailsScreen from './screens/DetailsScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import ProfileScreen from './screens/ProfileScreen';
-import { AuthProvider, useAuth } from './AuthContext';
+import { AuthProvider ,useAuth} from './AuthContext';
 import ProfileEditScreen from './screens/ProfileEditScreen';
 import ChatListScreen from './screens/ChatListScreen';
 import ChatScreen from './screens/ChatScreen';
-
+import AlumniCardScreen from './screens/AlumniCardScreen';
 // Importing images for the tab icons
 import HomeIcon from './assets/images/home.png';
 import ProfileIcon from './assets/images/profile.png';
@@ -39,6 +39,17 @@ function ChatStack() {
     );
 }
 
+function HomeStack() {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen name="HomePage" component={HomeScreen} />
+            <Stack.Screen name="AlumniCard" component={AlumniCardScreen} />
+
+
+        </Stack.Navigator>
+    );
+}
+
 function AppTabs() {
     const { userEmail } = useAuth();
 
@@ -51,7 +62,7 @@ function AppTabs() {
         >
             <Tab.Screen
                 name="Home"
-                component={HomeScreen}
+                component={HomeStack}
                 options={{
                     headerShown: false,
                     tabBarLabel: 'Home',
@@ -114,4 +125,4 @@ export default function App() {
             </NavigationContainer>
         </AuthProvider>
     );
-}
+}    

@@ -5,24 +5,16 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(null);
-    const [userEmail, setUserEmail] = useState(null); // State for user email
-
-    // Load login state and user email from AsyncStorage
+    const [userEmail, setUserEmail] = useState(null);
+    // Load login state, user email, and user role from AsyncStorage
     useEffect(() => {
         const loadLoginState = async () => {
             try {
                 const storedLoginState = await AsyncStorage.getItem('isLoggedIn');
-                const storedEmail = await AsyncStorage.getItem('userEmail'); // Load user email
+                const storedEmail = await AsyncStorage.getItem('userEmail');
 
-                if (storedLoginState !== null) {
-                    setIsLoggedIn(JSON.parse(storedLoginState));
-                } else {
-                    setIsLoggedIn(false); // Default to logged out if no state is saved
-                }
-
-                if (storedEmail !== null) {
-                    setUserEmail(storedEmail); // Set user email if it exists
-                }
+                setIsLoggedIn(storedLoginState ? JSON.parse(storedLoginState) : false);
+                setUserEmail(storedEmail || null);// Set user role if it exists
             } catch (error) {
                 console.error('Failed to load login state', error);
             }
@@ -33,16 +25,16 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email) => {
         try {
-            await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
-
-            if (email) { // Ensure email is defined
-                await AsyncStorage.setItem('userEmail', email); // Save user email on login
-                setUserEmail(email);
-            } else {
+            if (!email) {
                 console.error('Email is required for login');
+                return;
             }
 
+            await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+            await AsyncStorage.setItem('userEmail', email);
+
             setIsLoggedIn(true);
+            setUserEmail(email);
         } catch (error) {
             console.error('Failed to save login state', error);
         }
@@ -51,9 +43,9 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         try {
             await AsyncStorage.removeItem('isLoggedIn');
-            await AsyncStorage.removeItem('userEmail'); // Remove user email on logout
+            await AsyncStorage.removeItem('userEmail');
+
             setIsLoggedIn(false);
-            setUserEmail(null); // Clear user email state
         } catch (error) {
             console.error('Failed to remove login state', error);
         }
@@ -66,5 +58,4 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-// Hook to use the AuthContext
 export const useAuth = () => useContext(AuthContext);

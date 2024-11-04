@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, View, Text, TextInput, Alert } from 'react-native';
+import { Button, View, Text, TextInput, Alert, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useAuth } from '../AuthContext'; // Import useAuth from AuthContext
 
 function LoginScreen({ navigation }) {
@@ -20,7 +20,6 @@ function LoginScreen({ navigation }) {
             if (response.ok) {
                 const data = await response.json();
                 Alert.alert('Success', data.message);
-                console.log(email)
                 login(email); // Set user as logged in
                 navigation.navigate('Home'); // Navigate to Home screen
             } else {
@@ -40,38 +39,79 @@ function LoginScreen({ navigation }) {
     };
 
     return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text>Login Screen</Text>
+        <View style={styles.container}>
+            <Image source={require('../Alumni-connect.jpg')} style={styles.logo} /> {/* Update with your logo path */}
+            <Text style={styles.title}>Login</Text>
             <TextInput
                 placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
-                style={{
-                    height: 40,
-                    borderColor: 'gray',
-                    borderWidth: 1,
-                    marginBottom: 10,
-                    width: '80%',
-                    padding: 10,
-                }}
+                style={styles.input}
+                keyboardType="email-address"
+                autoCapitalize="none"
             />
             <TextInput
                 placeholder="Password"
                 secureTextEntry
                 value={password}
                 onChangeText={setPassword}
-                style={{
-                    height: 40,
-                    borderColor: 'gray',
-                    borderWidth: 1,
-                    marginBottom: 10,
-                    width: '80%',
-                    padding: 10,
-                }}
+                style={styles.input}
             />
-            <Button title="Login" onPress={handleLogin} />
+            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                <Text style={styles.loginButtonText}>Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                <Text style={styles.registerLink}>Don't have an account? Register</Text>
+            </TouchableOpacity>
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        padding: 20,
+        backgroundColor: '#F5F7FA',
+    },
+    logo: {
+        width: 120,
+        height: 120,
+        marginBottom: 20,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 20,
+    },
+    input: {
+        height: 50,
+        width: '100%',
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingHorizontal: 15,
+        marginVertical: 10,
+        backgroundColor: '#FFFFFF',
+    },
+    loginButton: {
+        backgroundColor: '#007AFF',
+        paddingVertical: 15,
+        paddingHorizontal: 80,
+        borderRadius: 10,
+        marginVertical: 10,
+    },
+    loginButtonText: {
+        color: '#FFFFFF',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    registerLink: {
+        color: '#007AFF',
+        marginTop: 20,
+        fontSize: 16,
+    },
+});
 
 export default LoginScreen;

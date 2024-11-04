@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, View, Text, TextInput, Image, TouchableOpacity } from 'react-native';
+import { Button, View, Text, TextInput, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 
 function RegisterScreen({ navigation }) {
@@ -48,7 +48,6 @@ function RegisterScreen({ navigation }) {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log("Response Status:", response.status);
             const data = await response.json();
             alert(data.message);
             if (response.ok) {
@@ -61,44 +60,121 @@ function RegisterScreen({ navigation }) {
     };
 
     return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text>Register Screen</Text>
+        <View style={styles.container}>
+            <Image source={require('../Alumni-connect.jpg')} style={styles.logo} /> {/* Update with your logo path */}
+            <Text style={styles.title}>Register</Text>
             <TextInput
                 placeholder="Full Name"
                 value={fullName}
                 onChangeText={setFullName}
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, width: '80%', padding: 10 }}
+                style={styles.input}
             />
             <TextInput
                 placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, width: '80%', padding: 10 }}
+                style={styles.input}
+                keyboardType="email-address"
+                autoCapitalize="none"
             />
             <TextInput
                 placeholder="Mobile Number"
                 value={mobile}
                 onChangeText={setMobile}
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, width: '80%', padding: 10 }}
+                style={styles.input}
+                keyboardType="phone-pad"
             />
             <TextInput
                 placeholder="Password"
                 secureTextEntry
                 value={password}
                 onChangeText={setPassword}
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, width: '80%', padding: 10 }}
+                style={styles.input}
             />
-            <TouchableOpacity onPress={handlePickImage}>
+            <TouchableOpacity onPress={handlePickImage} style={styles.imagePicker}>
                 {profilePic ? (
-                    <Image source={profilePic} style={{ width: 100, height: 100, borderRadius: 50 }} />
+                    <Image source={profilePic} style={styles.profileImage} />
                 ) : (
-                    <Text>Select Profile Picture</Text>
+                    <Text style={styles.imagePickerText}>Select Profile Picture</Text>
                 )}
             </TouchableOpacity>
-            <Button title="Register" onPress={handleRegister} />
-            <Button title="Go to Login" onPress={() => navigation.navigate('Login')} />
+            <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+                <Text style={styles.registerButtonText}>Register</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.loginButton}>
+                <Text style={styles.loginButtonText}>Go to Login</Text>
+            </TouchableOpacity>
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#f9f9f9',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 20,
+    },
+    logo: {
+        width: 100,
+        height: 100,
+        marginBottom: 20,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        color: '#333',
+    },
+    input: {
+        height: 50,
+        width: '100%',
+        borderColor: '#ddd',
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 15,
+        marginBottom: 15,
+        backgroundColor: '#fff',
+    },
+    imagePicker: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: '#e0e0e0',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
+    },
+    profileImage: {
+        width: 100,
+        height: 100,
+    },
+    imagePickerText: {
+        color: '#555',
+    },
+    registerButton: {
+        backgroundColor: '#007bff',
+        borderRadius: 8,
+        paddingVertical: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        marginBottom: 15,
+    },
+    registerButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    loginButton: {
+        paddingVertical: 10,
+        alignItems: 'center',
+    },
+    loginButtonText: {
+        color: '#007bff',
+        fontSize: 16,
+    },
+});
 
 export default RegisterScreen;
