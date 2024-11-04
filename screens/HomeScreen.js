@@ -53,7 +53,7 @@ function HomeScreen({ navigation }) {
 
             {/* Section Buttons */}
             <View style={styles.sectionsContainer}>
-                <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('News')}>
+                <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('AddNews')}>
                     <Text style={styles.sectionText}>News and Updates</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('JobPortal')}>

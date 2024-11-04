@@ -13,6 +13,8 @@ import ProfileEditScreen from './screens/ProfileEditScreen';
 import ChatListScreen from './screens/ChatListScreen';
 import ChatScreen from './screens/ChatScreen';
 import AlumniCardScreen from './screens/AlumniCardScreen';
+import AddNewsScreen from './screens/AddNewsScreen';
+import NewsListScreen from './screens/NewsListScreen';
 // Importing images for the tab icons
 import HomeIcon from './assets/images/home.png';
 import ProfileIcon from './assets/images/profile.png';
@@ -44,8 +46,7 @@ function HomeStack() {
         <Stack.Navigator>
             <Stack.Screen name="HomePage" component={HomeScreen} />
             <Stack.Screen name="AlumniCard" component={AlumniCardScreen} />
-
-
+            <Stack.Screen name="AddNews" component={AddNewsScreen} />
         </Stack.Navigator>
     );
 }
@@ -78,6 +79,18 @@ function AppTabs() {
                 options={{
                     headerShown: false,
                     tabBarLabel: 'Profile',
+                    tabBarIcon: ({ color, size }) => (
+                        <Image source={ProfileIcon} style={{ width: size, height: size, tintColor: color }} />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="News"
+                component={NewsListScreen}
+                initialParams={{ email: userEmail }}
+                options={{
+                    headerShown: false,
+                    tabBarLabel: 'News',
                     tabBarIcon: ({ color, size }) => (
                         <Image source={ProfileIcon} style={{ width: size, height: size, tintColor: color }} />
                     ),
