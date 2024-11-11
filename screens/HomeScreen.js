@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, ActivityIndicator, Alert, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, Button, FlatList, StyleSheet, ActivityIndicator, Alert, Image, TouchableOpacity } from 'react-native';
 import { useAuth } from '../AuthContext';
 import axios from 'axios';
 
@@ -9,19 +9,19 @@ function HomeScreen({ navigation }) {
     const [loading, setLoading] = useState(true);
     const [friends, setFriends] = useState({ accepted: [], pending: [] });
 
-
     const fetchFriends = () => {
-        setLoading(true); // Set loading to true before fetching
+        setLoading(true);
         axios.get(`http://10.0.2.2:5000/api/friends/status/${userEmail}`)
             .then(response => {
                 const { accepted = [], pending = [] } = response.data;
-                setFriends({ accepted, pending }); // Set loading to false after data is fetched
+                setFriends({ accepted, pending });
+                setLoading(false);
             })
             .catch(error => {
                 console.error("Error fetching friends:", error);
-                setLoading(false); // Set loading to false in case of an error
+                setLoading(false);
             });
-    }
+    };
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -32,13 +32,12 @@ function HomeScreen({ navigation }) {
             } catch (error) {
                 console.error("Error fetching users:", error);
             } finally {
-
+                setLoading(false);
             }
         };
         fetchUsers();
         fetchFriends();
-        setLoading(false);
-    }, [userEmail,friends]);
+    }, [userEmail]);
 
     if (loading) {
         return (
@@ -59,7 +58,6 @@ function HomeScreen({ navigation }) {
     }
 
     const sendFriendRequest = async (email) => {
-        // Logic to send a friend request (API call)
         try {
             const response = await fetch('http://10.0.2.2:5000/api/friend-requests', {
                 method: 'POST',
@@ -81,23 +79,27 @@ function HomeScreen({ navigation }) {
         axios.post(`http://10.0.2.2:5000/api/friends/accept`, { friendEmail, userEmail })
             .then(() => {
                 Alert.alert("Success", "Friend request accepted!");
-                fetchFriends(); // Refresh the friends list
+                fetchFriends();
             })
             .catch(error => console.error("Error accepting friend request:", error));
     };
+
     const rejectRequest = (friendEmail) => {
         axios.post(`http://10.0.2.2:5000/api/friends/reject`, { friendEmail, userEmail })
             .then(() => {
                 Alert.alert("Success", "Friend request rejected!");
-                fetchFriends(); // Refresh the friends list
+                fetchFriends();
             })
             .catch(error => console.error("Error rejecting friend request:", error));
     };
-    return (
-        <ScrollView style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerText}>Welcome to the Home Screen</Text>
-                <Button title="Logout" onPress={logout} color="#FF3D00" />
+
+    const renderHeader = () => (
+        <View style={styles.header}>
+            <View>
+            <Text style={styles.headerText}>Welcome to the Home Screen</Text>
+                <View style={styles.logoutButton}>
+                    <Button title="Logout" onPress={logout} color="#FF3D00" />
+                </View>
             </View>
 
             {/* Section Buttons */}
@@ -112,24 +114,22 @@ function HomeScreen({ navigation }) {
                     <Text style={styles.sectionText}>Alumni Card</Text>
                 </TouchableOpacity>
             </View>
+        </View>
+    );
 
-            {/* List of Alumni */}
-            <FlatList
-                data={users}
-                keyExtractor={(item) => item.email}
-                renderItem={({ item }) => {
-                    // Extract the friend's email from the item
-                    const friendEmail = item.email;
+    return (
+        <FlatList
+            data={users}
+            keyExtractor={(item) => item.email}
+            ListHeaderComponent={renderHeader}
+            renderItem={({ item }) => {
+                const friendEmail = item.email;
+                const isFriend = friends.accepted.some(friend => friend.email === friendEmail);
+                const hasRequested = friends.pending.some(friend => friend.email === friendEmail);
 
-                    // Check if the email is in the accepted friends list
-                    const isFriend = friends.accepted.some(friend => friend.email === friendEmail);
-
-                    // Check if the email is in the pending friends list
-                    const hasRequested = friends.pending.some(friend => friend.email === friendEmail);
-
-                    return (
-                        <View style={styles.userContainer}>
-                            <TouchableOpacity onPress={()=>{navigation.navigate('ProfileDetails',{email:friendEmail})}}>
+                return (
+                    <View style={styles.userContainer}>
+                        <TouchableOpacity onPress={() => { navigation.navigate('ProfileDetails', { email: friendEmail }) }}>
                             <Image
                                 source={{ uri: item.profilePic ? convertToPath(item.profilePic) : 'https://example.com/default-avatar.png' }}
                                 style={styles.profileImage}
@@ -156,16 +156,14 @@ function HomeScreen({ navigation }) {
                                     onPress={() => sendFriendRequest(friendEmail)}
                                     color="#007AFF"
                                 />
-                                )}
-                            </TouchableOpacity>
-                        </View>
-                    );
-                }}
-                contentContainerStyle={styles.userList}
-                showsVerticalScrollIndicator={false}
-            />
-
-        </ScrollView>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                );
+            }}
+            contentContainerStyle={styles.userList}
+            showsVerticalScrollIndicator={false}
+        />
     );
 }
 
@@ -176,9 +174,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#F7F9FC',
     },
     header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         marginBottom: 20,
         paddingBottom: 10,
         borderBottomWidth: 1,
@@ -188,6 +183,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         color: '#333',
+        marginBottom: 10,
     },
     sectionsContainer: {
         flexDirection: 'row',
@@ -207,6 +203,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#007AFF',
         fontWeight: 'bold',
+    },
+    logoutButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        width: 80, // Smaller width for a compact button
+        height: 50,
     },
     loaderContainer: {
         flex: 1,
