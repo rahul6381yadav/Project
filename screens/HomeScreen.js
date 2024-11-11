@@ -32,6 +32,7 @@ function HomeScreen({ navigation }) {
             } catch (error) {
                 console.error("Error fetching users:", error);
             } finally {
+
             }
         };
         fetchUsers();
@@ -104,20 +105,11 @@ function HomeScreen({ navigation }) {
                 <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('AddNews')}>
                     <Text style={styles.sectionText}>News and Updates</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('JobPortal')}>
-                    <Text style={styles.sectionText}>Job Portal</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('NearbyAlumni')}>
-                    <Text style={styles.sectionText}>Nearby Alumni</Text>
-                </TouchableOpacity>
                 <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('PostDiscussion')}>
                     <Text style={styles.sectionText}>Post Discussion</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('AlumniCard')}>
                     <Text style={styles.sectionText}>Alumni Card</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.sectionButton} onPress={() => navigation.navigate('JoinGroup')}>
-                    <Text style={styles.sectionText}>Join a Group</Text>
                 </TouchableOpacity>
             </View>
 
@@ -137,6 +129,7 @@ function HomeScreen({ navigation }) {
 
                     return (
                         <View style={styles.userContainer}>
+                            <TouchableOpacity onPress={()=>{navigation.navigate('ProfileDetails',{email:friendEmail})}}>
                             <Image
                                 source={{ uri: item.profilePic ? convertToPath(item.profilePic) : 'https://example.com/default-avatar.png' }}
                                 style={styles.profileImage}
@@ -163,7 +156,8 @@ function HomeScreen({ navigation }) {
                                     onPress={() => sendFriendRequest(friendEmail)}
                                     color="#007AFF"
                                 />
-                            )}
+                                )}
+                            </TouchableOpacity>
                         </View>
                     );
                 }}

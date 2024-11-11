@@ -73,29 +73,41 @@ const DiscussionDetailScreen = () => {
     };
 
     return (
-        <View style={{ padding: 20 }}>
+        <View style={{ padding: 15, backgroundColor: '#f5f5f5', flex: 1 }}>
             <FlatList
                 data={discussions}
                 keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (
-                    <View style={{ marginBottom: 20, padding: 10, borderBottomWidth: 1 }}>
-                        <Text style={{ fontSize: 20, fontWeight: 'bold' }}>{item.title}</Text>
-                        <Text>{item.content}</Text>
-                        <Text>{ item.author}</Text>
-                        <Text>Likes: {item.likes}</Text>
+                    <View style={{
+                        backgroundColor: '#fff',
+                        borderRadius: 10,
+                        padding: 15,
+                        marginVertical: 10,
+                        shadowColor: '#000',
+                        shadowOpacity: 0.1,
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowRadius: 5,
+                        elevation: 3,
+                    }}>
+                        <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 5 }}>{item.title}</Text>
+                        <Text style={{ color: '#333', marginBottom: 10 }}>{item.content}</Text>
+                        <Text style={{ fontSize: 12, color: '#6b6b6b' }}>Posted by {item.author}</Text>
 
-                        <TouchableOpacity
-                            onPress={() => handleLikeDiscussion(item._id)}
-                            style={{ marginVertical: 10 }}
-                        >
-                            <Text style={{ color: 'blue' }}>Like</Text>
+                        <TouchableOpacity onPress={() => handleLikeDiscussion(item._id)}>
+                        <Text style={{ marginVertical: 5 }}>❤️ {item.likes}</Text>
+                           
                         </TouchableOpacity>
 
                         <FlatList
                             data={item.comments}
                             keyExtractor={(comment) => comment._id}
                             renderItem={({ item: commentItem }) => (
-                                <View style={{ marginBottom: 5 }}>
+                                <View style={{
+                                    backgroundColor: '#f0f0f0',
+                                    borderRadius: 8,
+                                    padding: 10,
+                                    marginTop: 5,
+                                }}>
                                     <Text style={{ fontWeight: 'bold' }}>{commentItem.author}:</Text>
                                     <Text>{commentItem.content}</Text>
                                 </View>
@@ -103,24 +115,27 @@ const DiscussionDetailScreen = () => {
                         />
 
                         {selectedDiscussionId === item._id && (
-                            <View>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
                                 <TextInput
                                     placeholder="Add a comment"
                                     value={comment}
                                     onChangeText={setComment}
-                                    style={{ borderBottomWidth: 1, marginBottom: 10 }}
+                                    style={{
+                                        flex: 1,
+                                        padding: 10,
+                                        borderColor: '#ccc',
+                                        borderWidth: 1,
+                                        borderRadius: 10,
+                                        marginRight: 10,
+                                    }}
                                 />
-                                <Button
-                                    title="Post Comment"
-                                    onPress={() => handleAddComment(item._id)}
-                                />
+                                <Button title="Post" onPress={() => handleAddComment(item._id)} />
                             </View>
                         )}
 
-                        <Button
-                            title="Comment"
-                            onPress={() => setSelectedDiscussionId(item._id)}
-                        />
+                        <TouchableOpacity onPress={() => setSelectedDiscussionId(item._id)} style={{ marginTop: 10 }}>
+                            <Text style={{ color: '#007bff' }}>Comment</Text>
+                        </TouchableOpacity>
                     </View>
                 )}
             />

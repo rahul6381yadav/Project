@@ -23,6 +23,7 @@ import AlumniCardScreen from './screens/AlumniCardScreen';
 import AddNewsScreen from './screens/AddNewsScreen';
 import PostDiscussionScreen from './screens/PostDiscussionScreen';
 import DiscussionDetailScreen from './screens/DiscussionDetailScreen';
+import ProfileDetailsScreen from './screens/ProfileDetailsScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -50,7 +51,9 @@ function HomeStack() {
             <Stack.Screen name="HomePage" component={HomeScreen} />
             <Stack.Screen name="AlumniCard" component={AlumniCardScreen} />
             <Stack.Screen name="AddNews" component={AddNewsScreen} />
-            <Stack.Screen name="PostDiscussion" component={PostDiscussionScreen}/>
+            <Stack.Screen name="PostDiscussion" component={PostDiscussionScreen} />
+            <Stack.Screen name="ProfileDetails" component={ProfileDetailsScreen}/>
+            
         </Stack.Navigator>
     );
 }

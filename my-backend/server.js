@@ -235,27 +235,18 @@ app.get('/api/profile/:email', async (req, res) => {
     }
 });
 
-app.get('/api/profile/image/:email', async (req, res) => {
-    const { email } = req.params;
-    try {
-        const user = await User.findOne({ email });
-        if (!user || !user.profilePic) {
-            return res.status(404).json({ message: 'User or image not found' });
-        }
-        // Get the absolute path to the image file
-        const imagePath = path.resolve(user.profilePic);
-        const newpath = pathToFileURL(imagePath);
-        // Check if the image file exists
-        // if (!fs.existsSync(newpath)) {
-        //     return res.status(404).json({ message: 'Image file not found',user:user.profilePic ,path:imagePath});
-        // }
-        // Serve the image file directly
-        res.sendFile(String(imagePath));
-
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
+// app.get('/api/profile/image/:email', async (req, res) => {
+//     const { email } = req.params;
+//     try {
+//         const users = await User.findOne({ email });
+//         if (!users || !users.profilePic) {
+//             return res.status(404).json({ message: 'User or image not found' });
+//         }
+//         res.json({ profilePic:users.profilePic })
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// });
 
 app.get('/api/users/:email', async (req, res) => {
     const { email } = req.params;
@@ -499,7 +490,25 @@ app.post('/api/discussions/:id/comments', async (req, res) => {
 });
 
 
+app.get('/api/profile/image/:email', async (req, res) => {
+    const { email } = req.params;
 
+    try {
+        // Find the user by email
+        const user = await User.findOne({ email });
+
+        if (!user || !user.profilePic) {
+            // If user or profilePic not found, respond with 404
+            return res.status(404).json({ message: 'User or image not found' });
+        }
+
+        // Respond with the profilePic URL or path
+        res.json({ profilePic: user.profilePic });
+    } catch (error) {
+        console.error('Error fetching profile image:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
 // Like a discussion
 // app.post('/api/discussions/:id/like', async (req, res) => {
