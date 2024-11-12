@@ -8,6 +8,7 @@ function HomeScreen({ navigation }) {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [friends, setFriends] = useState({ accepted: [], pending: [] });
+    const [refresh, setRefresh] = useState(false);
 
     const fetchFriends = () => {
         setLoading(true);
@@ -37,7 +38,7 @@ function HomeScreen({ navigation }) {
         };
         fetchUsers();
         fetchFriends();
-    }, [userEmail]);
+    }, [userEmail,refresh]);
 
     if (loading) {
         return (
@@ -57,9 +58,29 @@ function HomeScreen({ navigation }) {
         return match ? `http://10.0.2.2:8081/my-backend/${match[0]}` : null;
     }
 
+    // const sendFriendRequest = async (email) => {
+    //     try {
+    //         const response = await fetch(`http://10.0.2.2:5000/api/request/${email}`, {
+    //             method: 'POST',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify({ sender: userEmail, receiver: email }),
+    //         });
+
+    //         if (response.ok) {
+    //             Alert.alert('Friend Request Sent', `Friend request sent to ${email}.`);
+    //         } else {
+    //             Alert.alert('Error', 'Failed to send friend request.');
+    //         }
+    //     } catch (error) {
+    //         console.error('Error sending friend request:', error);
+    //     }
+    //     fetchFriends();
+    // };
+
     const sendFriendRequest = async (email) => {
+        setRefresh(true);
         try {
-            const response = await fetch('http://10.0.2.2:5000/api/friend-requests', {
+            const response = await fetch('http://10.0.2.2:5000/api/request', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sender: userEmail, receiver: email }),
@@ -73,7 +94,17 @@ function HomeScreen({ navigation }) {
         } catch (error) {
             console.error('Error sending friend request:', error);
         }
+        fetchFriends();
+        setRefresh(false);
     };
+    
+
+    const receiveFriendRequest = async () => {
+        setRefresh(true);
+        fetchFriends();
+        setRefresh(false);
+    }
+
 
     const acceptRequest = (friendEmail) => {
         axios.post(`http://10.0.2.2:5000/api/friends/accept`, { friendEmail, userEmail })
@@ -82,15 +113,19 @@ function HomeScreen({ navigation }) {
                 fetchFriends();
             })
             .catch(error => console.error("Error accepting friend request:", error));
+        setRefresh(true);
+        setRefresh(false);
     };
 
     const rejectRequest = (friendEmail) => {
         axios.post(`http://10.0.2.2:5000/api/friends/reject`, { friendEmail, userEmail })
-            .then(() => {
-                Alert.alert("Success", "Friend request rejected!");
-                fetchFriends();
-            })
-            .catch(error => console.error("Error rejecting friend request:", error));
+        .then(() => {
+            Alert.alert("Success", "Friend request rejected!");
+            fetchFriends();
+        })
+        .catch(error => console.error("Error rejecting friend request:", error));
+        setRefresh(true);
+        setRefresh(false);
     };
 
     const renderHeader = () => (

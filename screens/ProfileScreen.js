@@ -56,8 +56,7 @@ function ProfileScreen({ route }) {
 
 
     const pathFormat = profile.profilePic ? convertToPath(profile.profilePic) : null;
-    // console.log(pathFormat)
-
+    console.log(pathFormat)
 
     return (
         <ScrollView contentContainerStyle={styles.container}>

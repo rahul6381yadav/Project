@@ -27,6 +27,7 @@ const io = require('socket.io')(server, {
 });
 
 const uploadDir = path.join(__dirname, 'uploads');
+
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
@@ -297,30 +298,64 @@ app.get('/api/messages/:userEmail/:friendEmail', async (req, res) => {
 
 
 
-app.post('/api/request/:email', async (req, res) => {
-    console.log("rahul yadav");
-    const { email } = req.params; // This is the email of the user receiving the request
-    const { fromId } = req.body; // This should be the ID of the user sending the request
+// app.post('/api/request/:email', async (req, res) => {
+//     console.log("rahul yadav");
+//     const { email } = req.params; // This is the email of the user receiving the request
+//     const { fromId } = req.body; // This should be the ID of the user sending the request
+
+//     try {
+//         // Find the user by email to get their user ID
+//         const user = await User.findOne({ email: email });
+
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found',email:email });
+//         }
+
+
+//         // Update the user by their ID
+//         const updatedUser = await User.findByIdAndUpdate(user._id, {
+//             $push: { requests: { from: fromId, status: 'pending'} },
+//         }, { new: true }); // Optionally return the updated user
+
+//         res.status(200).json({ message: 'Friend request sent' });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: 'Failed to send friend request', error: error.message });
+//     }
+// });
+
+// Send friend request endpoint
+app.post('/api/request', async (req, res) => {
+    const { sender: senderEmail, receiver: receiverEmail } = req.body;
 
     try {
-        // Find the user by email to get their user ID
-        const user = await User.findOne({ email: email });
+        const sender = await User.findOne({ email: senderEmail });
+        const receiver = await User.findOne({ email: receiverEmail });
 
-        if (!user) {
-            return res.status(404).json({ message: 'User not found',email:email });
+        if (!sender || !receiver) {
+            return res.status(404).json({ message: 'Sender or receiver not found' });
         }
 
-        // Update the user by their ID
-        const updatedUser = await User.findByIdAndUpdate(user._id, {
-            $push: { requests: { from: fromId, status: 'pending' } },
-        }, { new: true }); // Optionally return the updated user
+        // Check if the request already exists to prevent duplicates
+        const existingRequest = receiver.requests.find(req => req.from === senderEmail);
+        if (existingRequest) {
+            return res.status(400).json({ message: 'Friend request already sent' });
+        }
 
-        res.status(200).json({ message: 'Friend request sent' });
+        // Add the friend request to the receiver's requests array
+        receiver.requests.push({ from: senderEmail, status: 'pending' });
+        await receiver.save();
+
+        res.status(200).json({ message: 'Friend request sent successfully' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Failed to send friend request', error: error.message });
+        console.error('Error sending friend request:', error);
+        res.status(500).json({ message: 'Error sending friend request' });
     }
 });
+
+
+
+
 
 
 //router
@@ -396,27 +431,27 @@ app.post('/api/friends/accept', async (req, res) => {
 
 
 
-
-
 app.post('/api/friends/reject', async (req, res) => {
-    const { friendEmail, userEmail } = req.body;
+    const { userEmail, friendEmail } = req.body;
+
     try {
         const user = await User.findOne({ email: userEmail });
-        const friend = await User.findOne({email:friendEmail});
 
-        if (!user || !friend) {
-            return res.status(404).json({ message: "User not found" });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        // Remove the pending request from the friend's `requests` array
-        user.requests = user.requests.filter(request => request.from !== friend._id);
-        await friend.save();
+        // Find and remove the friend request
+        user.requests = user.requests.filter(req => !(req.from === friendEmail && req.status === 'pending'));
+        await user.save();
 
-        res.status(200).json({ message: "Friend request rejected" });
+        res.status(200).json({ message: 'Friend request rejected' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error rejecting friend request:', error);
+        res.status(500).json({ message: 'Error rejecting friend request' });
     }
 });
+
 
 
 

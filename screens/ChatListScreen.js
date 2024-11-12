@@ -7,6 +7,7 @@ const ChatListScreen = ({ navigation }) => {
     const { userEmail } = useAuth();
     const [friends, setFriends] = useState({ accepted: [], pending: [] });
     const [profileImages, setProfileImages] = useState({});
+    const [Refresh, setRefresh] = useState(false);
     useEffect(() => {
         fetchFriends();
     }, [userEmail]);
@@ -50,18 +51,25 @@ const ChatListScreen = ({ navigation }) => {
         axios.post(`http://10.0.2.2:5000/api/friends/accept`, { friendEmail, userEmail })
             .then(() => {
                 Alert.alert("Success", "Friend request accepted!");
-                fetchFriends(); // Refresh the friends list
+                // fetchFriends(); // Refresh the friends list
             })
             .catch(error => console.error("Error accepting friend request:", error));
+        setRefresh(true);
+        fetchFriends();
+        setRefresh(false);
+        
     };
 
     const rejectRequest = (friendEmail) => {
         axios.post(`http://10.0.2.2:5000/api/friends/reject`, { friendEmail, userEmail })
             .then(() => {
                 Alert.alert("Success", "Friend request rejected!");
-                fetchFriends(); // Refresh the friends list
+                // fetchFriends(); // Refresh the friends list
             })
             .catch(error => console.error("Error rejecting friend request:", error));
+        setRefresh(true);
+        fetchFriends();
+        setRefresh(false);
     };
 
     function convertToPath(inputString) {
@@ -75,13 +83,14 @@ const ChatListScreen = ({ navigation }) => {
     // uri: item.profilePic ? convertToPath(item.profilePic) : 'https://example.com/default-avatar.png';
     const renderFriend = ({ item }) => (
         <View style={styles.friendItem}>
-            <Image
-                source={{ uri: convertToPath(profileImages[item.email])}}
-                style={styles.profileImage}
-                onError={() => setProfileImages(prevImages => ({ ...prevImages, [item.email]: null }))}
-            />
+
             {friends.pending.includes(item) && ( // Check if item is in pending requests
                 <View style={styles.buttonContainer}>
+                    <Image
+                        source={{ uri: convertToPath(profileImages[item.email]) }}
+                        style={styles.profileImage}
+                        onError={() => setProfileImages(prevImages => ({ ...prevImages, [item.email]: null }))}
+                    />
                     <Text>{item.email}</Text>
                     <TouchableOpacity onPress={() => acceptRequest(item.email)} style={styles.button}>
                         <Text style={styles.buttonText}>Accept</Text>
@@ -93,6 +102,11 @@ const ChatListScreen = ({ navigation }) => {
             )}
             {friends.accepted.includes(item) && ( // Open chat for accepted friends
                 <TouchableOpacity onPress={() => openChat(item)} >
+                    <Image
+                        source={{ uri: convertToPath(profileImages[item.email]) }}
+                        style={styles.profileImage}
+                        onError={() => setProfileImages(prevImages => ({ ...prevImages, [item.email]: null }))}
+                    />
                     <Text>{item.email}</Text>
                 </TouchableOpacity>
             )}
